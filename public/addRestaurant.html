@@ -1,0 +1,33 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Big5">
+<title>Add new restaurant</title>
+</head>
+<body>
+<h1> Adding new restaurant</h1>
+<form action="/addRestaurant" method="post" enctype="multipart/form-data" ref="uploadForm" id="uploadForm">
+	<p>Name: <input type="text" name="name" required></p>
+	
+	<p>Address:<br>
+	Street: <input type="text" name="street"><br>
+	Building: <input type="text" name="building"><br>
+	Zipcode: <input type="text" name="zipcode"><br>
+	</p>
+	
+	<p>Coordinates:<br>
+	GPS Coordinates (lon.): <input type="text" name="lon"><br>
+	GPS Coordinates (lat.): <input type="text" name="lat"><br>
+	</p>
+	
+	<p>Other Info:<br>
+	Borough: <input type="text" name="borough"><br>
+	Cuisine: <input type="text" name="cuisine"><br>
+	Restaurant Id: <input type="text" name="restaurant_id"><br>
+	Photo:<input type="file" name="sampleFile">
+	</p>
+	<br>
+	<input type="submit" value="Add new restaurant">
+</form>
+
+</body>
+</html>

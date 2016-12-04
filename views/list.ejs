@@ -1,0 +1,14 @@
+<HTML>
+	<BODY>
+	<H1>Showing Restaurant List</H1>
+	<form action="/addRestaurant" method ="get">
+		<input type="submit" value="Add Restaurant">
+	</form>
+	<ol>
+	  <% c.forEach(function(restaurant) { %>
+	  <li><a href=/showdetail?id=<%= restaurant.restaurant_id %>><%= restaurant.name %></a></li>
+	  <% });                        %>
+	<ol>
+	</BODY>
+</HTML>
+

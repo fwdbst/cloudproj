@@ -1,0 +1,51 @@
+<HTML>
+<head>
+  <title><%= c.name %></title>
+</head>
+<BODY>
+	<H2><%= c.name %></H2>
+	<p>Address: <br>
+	Street: <%= c.address.street %><br>
+	Building: <%= c.address.building %><br>
+	Zipcode: <%= c.address.zipcode %><br>
+	</p>
+	
+	<p>Coordinates:<br>
+	GPS Coordinates (lon.): <%= c.address.coord[0] %><br>
+	GPS Coordinates (lat.): <%= c.address.coord[1] %><br>
+	</p>
+	<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true&key=AIzaSyD1n1KfYMSrSsSdaRizc4aty_fsVjYkDIQ"></script>
+        <script type="text/javascript">
+            var loadMap = function() 
+            {
+				var myLatLng = {lat: <%=lat%>, lng: <%=lon%>};
+                var map = new google.maps.Map(document.getElementById("map"),{
+				      zoom: <%=zoom%>,
+				      center: myLatLng
+				}); 
+				var map = new google.maps.Marker({
+					position: myLatLng,
+					map: map,
+					title: 'OUHK'
+				});
+            };
+            window.onload= loadMap;
+        </script>
+		<aside>
+        	<div id="map" style="width:500px;height:500px;">
+		</aside>	
+	
+	<p>Other Info:<br>
+	Borough: <%= c.borough %><br>
+	Cuisine: <%= c.cuisine %><br>
+	Restaurant Id: <%= c.restaurant_id %><br>
+	</p>
+	<% if (c.photo!=null) {%>
+	Photo: <img src="data:<%= c.photo.mimetype %>;base64,<%= c.photo.data %>">
+	<% } %>
+	
+	
+
+</BODY>
+</HTML>
+
