@@ -27,7 +27,7 @@ app.use(expressSession({
 var users = new Array(
 	{name: 'developer', password: 'developer'},
 	{name: 'guest', password: 'guest'},
-	{name: 'demo', password: '123'}
+	{name: 'demo', password: ''}
 );
 
 app.set('view engine','ejs');
@@ -90,6 +90,82 @@ app.post('/register', function(req,res) {
 	});
 	//res.redirect('/list');
 });
+
+app.get('/rating', function(req,res){
+	res.sendFile(__dirname+ '/public/rating.html')
+});
+
+/*
+app.post('/rating',function(req,res){
+	console.log('req.body.rating='+req.body.rating);
+	console.log('req.session.username='+req.session.username);
+	console.log('req.session.id='+req.session.id);
+	var newRate = {};
+	newRate['user']= res.session.username;
+	newRate['restaurant_id']=req.session.lastId;
+	newRate['rate']=req.body.rating;
+
+		MongoClient.connect(mongourl, function(err, db) {
+			assert.equal(err,null);
+			console.log('Connected to MongoDB\n');
+			db.collection('rating').insertOne(newRate,
+				function(err,result) {
+					assert.equal(err,null);
+					console.log("insertOne() was successful");
+					db.close();
+					console.log('Disconnected from MongoDB\n');
+					res.writeHead(200, {"Content-Type": "text/plain"});
+					res.end('Insert was successful ');
+				});
+		});
+});
+
+*/
+
+
+var rateSchema = new mongoose.Schema({
+	username: {type: String},
+	rating:{type: String},
+	restaurant_id:{type: String},
+},
+     { collection: 'rating' }
+);
+
+var rateModel = mongoose.model('rate', rateSchema);
+
+app.post('/rating', function(req,res){
+	mongoose.connect(mongourl, function(err, db) {
+		console.log('Connected to Mongoose\n');
+		if (rateModel.find({username: req.session.username})){res.redirect('/');};
+		rateModel.create({ username: req.session.username, restaurant_id: req.session.lastId, rating: req.body.rating }, function (err, result) {
+			if (err) return handleError(err);
+		})
+
+		
+		console.log('Disconnected Mongoose\n');
+	});
+});
+
+
+
+app.get('/createRate',function(req,res){
+
+	MongoClient.connect(mongourl, function(err, db) {
+		db.collection('rating').insert({"username": "fake", "restaurant_id": "0", "rating": "5"},function(err, result){
+			if (err) {res.status(200).json({}); }
+			else {  console.log('success,redirected');
+				res.redirect('/');
+				};
+			}
+		);
+	db.close();
+	})
+
+
+});
+
+
+
 
 app.get('/addRestaurant', function(req,res) {
 	res.sendFile(__dirname + '/public/addRestaurant.html');
@@ -180,6 +256,11 @@ app.get("/showdetail", function(req,res) {
 	    find1Res(db,criteria,function(restaurants) {
 	      db.close();
 	      console.log('Disconnected MongoDB\n');
+
+	req.session.lastId = restaurants._id;
+	req.session.save(function(err) {});
+	console.log('req.session.lastId = '+ req.session.lastId);
+
         res.render('details',{c:restaurants,lat:restaurants.address.coord[1],lon:restaurants.address.coord[0],zoom:18});
         res.end();
 	    });
@@ -271,7 +352,7 @@ app.post('/api/create', function(req, res) {
             if (err) {
                 res.json({status: 'failed'});
             } else {
-                res.json({status: 'ok'});
+                res.json({status: 'ok', _id: result["ops"][0]["_id"]});
             }
         });
     });

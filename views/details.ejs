@@ -44,7 +44,8 @@
 	Photo: <img src="data:<%= c.photo.mimetype %>;base64,<%= c.photo.data %>">
 	<% } %>
 	
-	
+	<form action="/rating" method="get" id="form1"></form>
+<button type="submit" form="form1" value="Submit">Rate this restaurant</button>
 
 </BODY>
 </HTML>
