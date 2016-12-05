@@ -313,6 +313,7 @@ app.post('/update', function(req,res) {
 	
 	updateRestaurant['borough'] = req.body.borough;
 	updateRestaurant['cuisine'] = req.body.cuisine;
+	updateRestaurant['restaurant_id'] = req.body.restaurant_id;
 
 	var criteria = {_id: ObjectId(req.session.lastId)};
 	console.log('req.session.lastId = '+ req.session.lastId);

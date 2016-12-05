@@ -244,7 +244,6 @@ app.get('/update', function(req,res) {
 	}else{*/
 	MongoClient.connect(mongourl, function(err, db) {
 		assert.equal(err,null);
-		console.log('req.session.lastId = '+ req.session.lastId);
 	 	console.log('Connected to MongoDB\n');
 	 	//var criteria = {'restaurant_id':req.query.id};
 		var criteria = {_id: ObjectId(req.session.lastId)};
@@ -314,9 +313,10 @@ app.post('/update', function(req,res) {
 	
 	updateRestaurant['borough'] = req.body.borough;
 	updateRestaurant['cuisine'] = req.body.cuisine;
+	updateRestaurant['restaurant_id'] = req.body.restaurant_id;
 
 	var criteria = {'_id':req.session.lastId};
-	
+	console.log('req.session.lastId = '+ req.session.lastId);
 	MongoClient.connect(mongourl, function(err, db) {
 		assert.equal(err,null);
 		console.log('Connected to MongoDB\n');
