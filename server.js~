@@ -217,6 +217,26 @@ function findRestaurants(db,criteria,callback) {
 	});
 }
 
+app.get("/showdetail", function(req,res) {
+    MongoClient.connect(mongourl, function(err, db) {
+	    assert.equal(err,null);
+	    console.log('Connected to MongoDB\n');
+	    var criteria = {'restaurant_id':req.query.id};
+	    find1Res(db,criteria,function(restaurants) {
+	      db.close();
+	      console.log('Disconnected MongoDB\n');
+
+	req.session.lastId = restaurants._id;
+	req.session.save(function(err) {});
+	console.log('req.session.lastId = '+ req.session.lastId);
+	console.log(restaurants._id);
+
+        res.render('details',{c:restaurants,lat:restaurants.address.coord[1],lon:restaurants.address.coord[0],zoom:18});
+        res.end();
+	    });
+	  });
+});
+
 app.get('/update', function(req,res) {
 	//add a if to comfirm owner
 	/*if(req.session.username!=req.query.username){
@@ -224,14 +244,15 @@ app.get('/update', function(req,res) {
 	}else{*/
 	MongoClient.connect(mongourl, function(err, db) {
 		assert.equal(err,null);
+		console.log('req.session.lastId = '+ req.session.lastId);
 	 	console.log('Connected to MongoDB\n');
 	 	//var criteria = {'restaurant_id':req.query.id};
-		var criteria = {'restaurant_id':req.query.id};
+		var criteria = {_id: ObjectId(req.session.lastId)};
 		find1Res(db,criteria,function(restaurants) {
 	        	db.close();
 			console.log('Disconnected MongoDB\n');
      			res.render('update',{c:restaurants});
-     			res.end();
+     			//res.end();
 		});
 	});
 	//}
@@ -239,6 +260,7 @@ app.get('/update', function(req,res) {
 	//res.sendFile(__dirname + '/public/update.ejs');
 });
 
+/*
 app.post('/update', function(req,res) {
 	var updateRestaurant = {};
 	var criteria = {'restaurant_id':req.body.restaurant_id};
@@ -275,27 +297,48 @@ app.post('/update', function(req,res) {
 
 	
 });
+*/
 
-app.get('/delete', function(req,res) {
+app.post('/update', function(req,res) {
+	var updateRestaurant = {};
+
+	updateRestaurant['name'] = req.body.name;
+	updateRestaurant['address'] = {};
+	updateRestaurant.address.street = req.body.street;
+	updateRestaurant.address.zipcode = req.body.zipcode;
+	updateRestaurant.address.building = req.body.building;
+	
+	updateRestaurant.address['coord'] = [];
+	updateRestaurant.address.coord.push(req.body.lon);
+	updateRestaurant.address.coord.push(req.body.lat);
+	
+	updateRestaurant['borough'] = req.body.borough;
+	updateRestaurant['cuisine'] = req.body.cuisine;
+
+	var criteria = {'_id':req.session.lastId};
+	
 	MongoClient.connect(mongourl, function(err, db) {
 		assert.equal(err,null);
 		console.log('Connected to MongoDB\n');
-		//change restaurant_id to real pirmary key
-		// var criteria = {'restaurant_id':req.body.id};
-		//var criteria = {'_id':req.session.lastId};
-		console.log("req.session.lastId"+req.session.lastId);
-		db.collection('restaurants').remove({'_id':req.session.lastId},true,function(err,result) {
+		db.collection('restaurants').update(criteria,updateRestaurant,function(err,result) {
 				assert.equal(err,null);
-				console.log("delete() was successful");
+				console.log("update() was successful");
 				db.close();
 				console.log('Disconnected from MongoDB\n');
 				res.writeHead(200, {"Content-Type": "text/plain"});
-				res.end('delete was successful ');
+				res.end('update was successful ');
 
 				//res.redirect('/list');
+		
 		});
 	});
+
+	
 });
+
+
+
+
 
 app.use(fileUpload());
 app.use(bodyParser.json());
@@ -374,33 +417,16 @@ function findNRes(db,callback) {
 		})
 }
 
-app.get("/showdetail", function(req,res) {
-    MongoClient.connect(mongourl, function(err, db) {
-	    assert.equal(err,null);
-	    console.log('Connected to MongoDB\n');
-	    var criteria = {'restaurant_id':req.query.id};
-	    find1Res(db,criteria,function(restaurants) {
-	      db.close();
-	      console.log('Disconnected MongoDB\n');
-
-	req.session.lastId = restaurants._id;
-	req.session.save(function(err) {});
-	console.log('req.session.lastId = '+ req.session.lastId);
-
-        res.render('details',{c:restaurants,lat:restaurants.address.coord[1],lon:restaurants.address.coord[0],zoom:18});
-        res.end();
-	    });
-	  });
-});
 function find1Res(db,criteria,callback) {
     db.collection('restaurants').findOne(criteria,function(err,result) {
         assert.equal(err,null);
+	console.log(result);
         callback(result);
     });
 }
 
 app.get('/logout',function(req,res) {
-	req.session = null;
+	req.session.destroy(function(err) {});
 	res.redirect('/');
 })
 ;
