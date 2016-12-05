@@ -14,23 +14,24 @@
 	GPS Coordinates (lon.): <%= c.address.coord[0] %><br>
 	GPS Coordinates (lat.): <%= c.address.coord[1] %><br>
 	</p>
-	<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true&key=AIzaSyD1n1KfYMSrSsSdaRizc4aty_fsVjYkDIQ"></script>
-        <script type="text/javascript">
-            var loadMap = function() 
-            {
-				var myLatLng = {lat: <%=lat%>, lng: <%=lon%>};
-                var map = new google.maps.Map(document.getElementById("map"),{
-				      zoom: <%=zoom%>,
-				      center: myLatLng
-				}); 
-				var map = new google.maps.Marker({
-					position: myLatLng,
-					map: map,
-					title: 'OUHK'
-				});
-            };
-            window.onload= loadMap;
-        </script>
+	<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true&key="></script>
+
+
+ <script type="text/javascript">
+
+var map;
+function initMap() {
+  map = new google.maps.Map(document.getElementById('map'), {
+    center: {lat: -34.397, lng: 150.644},
+    zoom: 8
+  });
+}
+
+    </script>
+    <script async defer
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD1n1KfYMSrSsSdaRizc4aty_fsVjYkDIQ&callback=initMap">
+    </script>
+
 	<p>Other Info:<br>
 	Borough: <%= c.borough %><br>
 	Cuisine: <%= c.cuisine %><br>
@@ -45,7 +46,7 @@
 	<form action="/delete" method="get" id="form2"></form>
 <button type="submit" form="form2" value="Submit">Delete this restaurant</button>
 	<form action="/update" method="get" id="form3"></form>
-<button type="submit" form="form2" value="Submit">Update this restaurant</button>
+<button type="submit" form="form3" value="Submit">Update this restaurant</button>
 </BODY>
 </HTML>
 

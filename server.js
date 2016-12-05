@@ -336,6 +336,27 @@ app.post('/update', function(req,res) {
 	
 });
 
+app.get('/delete', function(req,res) {
+	var criteria = {_id: ObjectId(req.session.lastId)};
+	console.log('req.session.lastId = '+ req.session.lastId);
+	MongoClient.connect(mongourl, function(err, db) {
+		assert.equal(err,null);
+		console.log('Connected to MongoDB\n');
+		db.collection('restaurants').remove(criteria,function(err,result) {
+				assert.equal(err,null);
+				console.log("remove() was successful");
+				db.close();
+				console.log('Disconnected from MongoDB\n');
+				res.writeHead(200, {"Content-Type": "text/plain"});
+				res.end('delete was successful ');
+
+				//res.redirect('/list');
+		
+		});
+	});
+
+	
+});
 
 
 
