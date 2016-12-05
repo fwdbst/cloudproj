@@ -281,10 +281,12 @@ app.get('/delete', function(req,res) {
 		assert.equal(err,null);
 		console.log('Connected to MongoDB\n');
 		//change restaurant_id to real pirmary key
-		var criteria = {'restaurant_id':req.body.id};
-		db.collection('restaurants').remove(criteria,true,function(err,result) {
+		// var criteria = {'restaurant_id':req.body.id};
+		//var criteria = {'_id':req.session.lastId};
+		console.log("req.session.lastId"+req.session.lastId);
+		db.collection('restaurants').remove({'_id':req.session.lastId},true,function(err,result) {
 				assert.equal(err,null);
-				console.log("remove() was successful");
+				console.log("delete() was successful");
 				db.close();
 				console.log('Disconnected from MongoDB\n');
 				res.writeHead(200, {"Content-Type": "text/plain"});
