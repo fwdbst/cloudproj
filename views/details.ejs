@@ -14,13 +14,11 @@
 	GPS Coordinates (lon.): <%= c.address.coord[0] %><br>
 	GPS Coordinates (lat.): <%= c.address.coord[1] %><br>
 	</p>
-	<canvas>
-	<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true&key=AIzaSyD5zl626hPwMY-Q0tj9f3wi7cQvtI8sf9k"></script>
+	<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=true&key=AIzaSyD1n1KfYMSrSsSdaRizc4aty_fsVjYkDIQ"></script>
         <script type="text/javascript">
             var loadMap = function() 
             {
-			//	var myLatLng = {lat: <%=lat%>, lng: <%=lon%>};
-				var myLatLng = {lat: <%=lat%>,lng: <%=lon%>};
+				var myLatLng = {lat: <%=lat%>, lng: <%=lon%>};
                 var map = new google.maps.Map(document.getElementById("map"),{
 				      zoom: <%=zoom%>,
 				      center: myLatLng
@@ -32,11 +30,7 @@
 				});
             };
             window.onload= loadMap;
-        </script></canvas>
-		<aside>
-        	<div id="map" style="width:50%;height:50%;">
-		</aside>	
-	
+        </script>
 	<p>Other Info:<br>
 	Borough: <%= c.borough %><br>
 	Cuisine: <%= c.cuisine %><br>
