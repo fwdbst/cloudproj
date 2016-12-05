@@ -171,6 +171,130 @@ app.get('/addRestaurant', function(req,res) {
 	res.sendFile(__dirname + '/public/addRestaurant.html');
 });
 
+
+app.get('/search', function(req,res) {
+	res.sendFile(__dirname + '/public/search.html');
+});
+
+app.post('/search', function(req,res) {
+	var cri = {};
+	var restaurants = [];
+	cri[req.body.type] = req.body.value;
+
+	MongoClient.connect(mongourl, function(err, db) {
+		assert.equal(err,null);
+		console.log('Connected to MongoDB\n');
+		findRestaurants(db,cri,function(restaurants){
+			db.close();
+			console.log('Disconnected MongoDB\n');
+			res.writeHead(200, {"Content-Type": "text/html"});
+			res.write('<html><head><title>Restaurant</title></head>');
+			res.write('<body><H1>Restaurants</H1>');
+			res.write('<H2>Showing '+restaurants.length+' document(s)</H2>');
+			res.write('<H3>Criteria: </i>' + JSON.stringify(cri) + '</i></H3>');
+			res.write('<ol>');
+			for (var i in restaurants) {
+				res.write('<li><a href=/showdetail?id='+restaurants[i].restaurant_id+'>'+restaurants[i].name+'</a></li>');
+			}
+			res.write('</ol>');
+			res.end('</body></html>');
+			return(restaurants);
+		});
+	});
+	
+});
+
+function findRestaurants(db,criteria,callback) {
+	var restaurants = [];
+	cursor = db.collection('restaurants').find(criteria);
+	cursor.each(function(err, doc) {
+		assert.equal(err, null);
+		if (doc != null) {
+			restaurants.push(doc);
+		} else {
+			callback(restaurants);
+		}
+	});
+}
+
+app.get('/update', function(req,res) {
+	//add a if to comfirm owner
+	/*if(req.session.username!=req.query.username){
+		console.log("fail");
+	}else{*/
+	MongoClient.connect(mongourl, function(err, db) {
+		assert.equal(err,null);
+	 	console.log('Connected to MongoDB\n');
+	 	//var criteria = {'restaurant_id':req.query.id};
+		var criteria = {'restaurant_id':req.query.id};
+		find1Res(db,criteria,function(restaurants) {
+	        	db.close();
+			console.log('Disconnected MongoDB\n');
+     			res.render('update',{c:restaurants});
+     			res.end();
+		});
+	});
+	//}
+	//res.render('update')
+	//res.sendFile(__dirname + '/public/update.ejs');
+});
+
+app.post('/update', function(req,res) {
+	var updateRestaurant = {};
+	var criteria = {'restaurant_id':req.body.restaurant_id};
+	
+	updateRestaurant['name'] = req.body.name;
+	updateRestaurant['address'] = {};
+	updateRestaurant.address.street = req.body.street;
+	updateRestaurant.address.zipcode = req.body.zipcode;
+	updateRestaurant.address.building = req.body.building;
+	
+	updateRestaurant.address['coord'] = [];
+	updateRestaurant.address.coord.push(req.body.lon);
+	updateRestaurant.address.coord.push(req.body.lat);
+	
+	updateRestaurant['borough'] = req.body.borough;
+	updateRestaurant['cuisine'] = req.body.cuisine;
+
+
+	MongoClient.connect(mongourl, function(err, db) {
+		assert.equal(err,null);
+		console.log('Connected to MongoDB\n');
+		db.collection('restaurants').update(criteria,updateRestaurant,function(err,result) {
+				assert.equal(err,null);
+				console.log("update() was successful");
+				db.close();
+				console.log('Disconnected from MongoDB\n');
+				res.writeHead(200, {"Content-Type": "text/plain"});
+				res.end('update was successful ');
+
+				//res.redirect('/list');
+		
+		});
+	});
+
+	
+});
+
+app.get('/delete', function(req,res) {
+	MongoClient.connect(mongourl, function(err, db) {
+		assert.equal(err,null);
+		console.log('Connected to MongoDB\n');
+		//change restaurant_id to real pirmary key
+		var criteria = {'restaurant_id':req.body.id};
+		db.collection('restaurants').remove(criteria,true,function(err,result) {
+				assert.equal(err,null);
+				console.log("insertOne() was successful");
+				db.close();
+				console.log('Disconnected from MongoDB\n');
+				res.writeHead(200, {"Content-Type": "text/plain"});
+				res.end('delete was successful ');
+
+				//res.redirect('/list');
+		});
+	});
+});
+
 app.use(fileUpload());
 app.use(bodyParser.json());
 
